@@ -25,3 +25,6 @@ Your Way of making reservations.
 * 
 #### gitignore enhanted with:
 https://www.toptal.com/developers/gitignore/
+
+![obraz](https://github.com/user-attachments/assets/a56495e3-f5f7-4ae3-90d6-d52b55f47203)
+
