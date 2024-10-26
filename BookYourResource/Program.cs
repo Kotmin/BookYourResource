@@ -30,7 +30,6 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
-    // Pobranie serwisów UserManager i RoleManager
     var userManager = services.GetRequiredService<UserManager<User>>();
     var roleManager = services.GetRequiredService<RoleManager<Role>>();
 
@@ -57,18 +56,30 @@ app.Run();
 
 async Task SeedUsersAndRolesAsync(UserManager<User> userManager, RoleManager<Role> roleManager)
 {
-
+    using var scope = roleManager.Context.Database.BeginTransaction();
+    var permissionList = roleManager.Context.Set<Permission>().ToList();
+    
+  
     if (!await roleManager.RoleExistsAsync("Admin"))
     {
-        var role = new Role { Name = "Admin", Description = "Administrator role" };
-        await roleManager.CreateAsync(role);
+        var adminRole = new Role
+        {
+            Name = "Admin",
+            Description = "Administrator role",
+            Permissions = permissionList.Where(p => p.Id == 0).Select(p => p.Id).FirstOrDefault() // Admin / like sudo Permissions
+        };
+        await roleManager.CreateAsync(adminRole);
     }
-
 
     if (!await roleManager.RoleExistsAsync("User"))
     {
-        var role = new Role { Name = "User", Description = "Regular user role" };
-        await roleManager.CreateAsync(role);
+        var userRole = new Role
+        {
+            Name = "User",
+            Description = "Regular user role",
+            Permissions = permissionList.Where(p => p.Id >= 1 && p.Id <= 3).Select(p => p.Id).Sum() // Read, Make reservation, Delete reservation
+        };
+        await roleManager.CreateAsync(userRole);
     }
 
    
@@ -88,8 +99,8 @@ async Task SeedUsersAndRolesAsync(UserManager<User> userManager, RoleManager<Rol
         }
     }
 
-
-     if (userManager.Users.All(u => u.UserName != "andrzej"))
+   
+    if (userManager.Users.All(u => u.UserName != "andrzej"))
     {
         var andrzejUser = new User
         {
@@ -104,4 +115,5 @@ async Task SeedUsersAndRolesAsync(UserManager<User> userManager, RoleManager<Rol
             await userManager.AddToRoleAsync(andrzejUser, "User");
         }
     }
+    await scope.CommitAsync();
 }
