@@ -56,12 +56,12 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
         );
 
  
-        modelBuilder.Entity<Permission>().HasData(
-            new Permission { Id = 0, Name = "All", Description = "All Permissions" },
-            new Permission { Id = 1, Name = "Read", Description = "Read Only" },
-            new Permission { Id = 2, Name = "Make Reservation", Description = "Create reservations" },
-            new Permission { Id = 3, Name = "Delete Reservation", Description = "Delete reservations" }
-        );
+        // modelBuilder.Entity<Permission>().HasData(
+        //     new Permission { Id = 0, Name = "All", Description = "All Permissions" },
+        //     new Permission { Id = 1, Name = "Read", Description = "Read Only" },
+        //     new Permission { Id = 2, Name = "Make Reservation", Description = "Create reservations" },
+        //     new Permission { Id = 3, Name = "Delete Reservation", Description = "Delete reservations" }
+        // );
 
         modelBuilder.Entity<ResourceType>()
             .HasIndex(rt => rt.Name)
