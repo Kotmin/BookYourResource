@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -26,6 +30,16 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+
+//     var userManager = services.GetRequiredService<UserManager<User>>();
+//     var roleManager = services.GetRequiredService<RoleManager<Role>>();
+
+//     await SeedUsersAndRolesAsync(userManager, roleManager);
+// }
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -33,8 +47,13 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<User>>();
     var roleManager = services.GetRequiredService<RoleManager<Role>>();
 
-    await SeedUsersAndRolesAsync(userManager, roleManager);
+    // Zmieniamy uzyskiwanie kontekstu
+    var context = services.GetRequiredService<ApplicationDbContext>();
+
+    await SeedUsersAndRolesAsync(userManager, roleManager, context);
 }
+
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -54,7 +73,7 @@ app.MapRazorPages(); // req for Identity
 app.Run();
 
 
-async Task SeedUsersAndRolesAsync(UserManager<User> userManager, RoleManager<Role> roleManager)
+async Task SeedUsersAndRolesAsync(UserManager<User> userManager, RoleManager<Role> roleManager, ApplicationDbContext context)
 {
     using var scope = roleManager.Context.Database.BeginTransaction();
     var permissionList = roleManager.Context.Set<Permission>().ToList();
