@@ -18,7 +18,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
 // setup Identity
-builder.Services.AddIdentity<User, Role>()
+builder.Services.AddIdentity<User, Role>(options =>
+    {
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequiredUniqueChars = 1;
+
+
+        options.SignIn.RequireConfirmedAccount = false;
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     // .AddAPIEndpoints()
     .AddDefaultTokenProviders();
@@ -51,5 +62,19 @@ app.MapControllerRoute(
 
 
 app.MapRazorPages(); // req for Identity
+
+app.MapGet("/login", async context =>
+{
+    context.Response.Redirect("/Identity/Account/Login");
+    await Task.CompletedTask;
+});
+
+// change passwords for seeded acc
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await UserHelper.ChangeUserPasswordAsync(services, "admin-user-id", "SecurePassword1!");
+    await UserHelper.ChangeUserPasswordAsync(services, "andrzej-user-id", "SecurePassword1!");
+}
 
 app.Run();
