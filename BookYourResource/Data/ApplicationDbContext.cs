@@ -82,7 +82,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
             new User
             {
                 Id = "admin-user-id",
-                UserName = "admin",
+                UserName = "admin@example.com",
                 Email = "admin@example.com",
                 DisplayName = "Admin",
                 NormalizedUserName = "ADMIN"
@@ -90,7 +90,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
             new User
             {
                 Id = "andrzej-user-id",
-                UserName = "andrzej",
+                UserName = "andrzej@example.com",
                 Email = "andrzej@example.com",
                 DisplayName = "Andrzej",
                 NormalizedUserName = "ANDRZEJ"

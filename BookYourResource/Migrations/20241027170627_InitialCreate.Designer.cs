@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookYourResource.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241027150551_InitialCreate")]
+    [Migration("20241027170627_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -265,27 +265,27 @@ namespace BookYourResource.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ecc6c2b3-ca4d-4700-87ea-423b22b97bfb",
+                            Id = "5b664de7-5feb-425c-aba3-fb1297f29af6",
                             CodeName = "macbook_pro_1",
                             Details = "Apple MacBook Pro 16 inch",
                             Name = "MacBook Pro",
-                            TypeId = "0255fdba-33f1-49e4-be3a-94c5ee215678"
+                            TypeId = "c1b3bfb2-1275-42f4-bf86-1b9a70e595e0"
                         },
                         new
                         {
-                            Id = "c2e6ca0c-1bc1-47fe-805f-3cb9fa501270",
+                            Id = "ac80b957-f2df-404e-9380-f19bbb263f84",
                             CodeName = "the_duck",
                             Details = "A small yellow rubber duck",
                             Name = "Yellow Rubber Duck",
-                            TypeId = "a3eabe9c-d04c-4967-8797-419719a5e753"
+                            TypeId = "9e7bf685-70a7-4581-9239-9c0acb3244e8"
                         },
                         new
                         {
-                            Id = "6fed3457-edca-4ddc-8d2b-8c45b9ff49f9",
+                            Id = "6bd4f029-2fa7-4948-8c27-c56cbef2b6fb",
                             CodeName = "e211",
                             Details = "A classroom with projectors",
                             Name = "Classroom E211",
-                            TypeId = "0387c4d5-3510-4424-98f5-3d1a42d164c6"
+                            TypeId = "fab762cc-991d-4ef2-91a7-7427073e5013"
                         });
                 });
 
@@ -314,9 +314,9 @@ namespace BookYourResource.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "0c34044f-9e02-4234-8847-332a780920e1",
+                            Id = "8602105e-6c46-49da-9975-d680fb8d1048",
                             Name = "Capacity",
-                            ResourceId = "6fed3457-edca-4ddc-8d2b-8c45b9ff49f9",
+                            ResourceId = "6bd4f029-2fa7-4948-8c27-c56cbef2b6fb",
                             Value = "150"
                         });
                 });
@@ -344,19 +344,19 @@ namespace BookYourResource.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "0255fdba-33f1-49e4-be3a-94c5ee215678",
+                            Id = "c1b3bfb2-1275-42f4-bf86-1b9a70e595e0",
                             Description = "Any electronic device",
                             Name = "Device"
                         },
                         new
                         {
-                            Id = "0387c4d5-3510-4424-98f5-3d1a42d164c6",
+                            Id = "fab762cc-991d-4ef2-91a7-7427073e5013",
                             Description = "Rooms, halls, etc.",
                             Name = "Space"
                         },
                         new
                         {
-                            Id = "a3eabe9c-d04c-4967-8797-419719a5e753",
+                            Id = "9e7bf685-70a7-4581-9239-9c0acb3244e8",
                             Description = "Animals like the yellow rubber duck",
                             Name = "Animal"
                         });
@@ -478,31 +478,31 @@ namespace BookYourResource.Migrations
                         {
                             Id = "admin-user-id",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b3d6a260-ca3e-4fad-ab90-7ca669ff606e",
+                            ConcurrencyStamp = "27f084d1-d6a9-430f-88d7-b937fe2d1a44",
                             DisplayName = "Admin",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "237b01fc-ea3f-4b6e-a855-cc7e270bc9ec",
+                            SecurityStamp = "d0624ad1-f861-4725-9b32-49dbfd5f2051",
                             TwoFactorEnabled = false,
-                            UserName = "admin"
+                            UserName = "admin@example.com"
                         },
                         new
                         {
                             Id = "andrzej-user-id",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cca0850d-f05e-4646-a06a-2277cc2a5f52",
+                            ConcurrencyStamp = "ca147216-8d4a-4fe8-8d8c-41bbb9b9f999",
                             DisplayName = "Andrzej",
                             Email = "andrzej@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ANDRZEJ",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "d8dd1528-29d9-4da3-8d28-5f0c884502de",
+                            SecurityStamp = "44eb2f59-b4d6-42f8-b86b-1c86842ad22b",
                             TwoFactorEnabled = false,
-                            UserName = "andrzej"
+                            UserName = "andrzej@example.com"
                         });
                 });
 

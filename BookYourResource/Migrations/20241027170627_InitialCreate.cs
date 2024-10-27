@@ -295,8 +295,8 @@ namespace BookYourResource.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DisplayName", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { "admin-user-id", 0, "b3d6a260-ca3e-4fad-ab90-7ca669ff606e", "Admin", "admin@example.com", false, false, null, null, "ADMIN", null, null, false, "237b01fc-ea3f-4b6e-a855-cc7e270bc9ec", false, "admin" },
-                    { "andrzej-user-id", 0, "cca0850d-f05e-4646-a06a-2277cc2a5f52", "Andrzej", "andrzej@example.com", false, false, null, null, "ANDRZEJ", null, null, false, "d8dd1528-29d9-4da3-8d28-5f0c884502de", false, "andrzej" }
+                    { "admin-user-id", 0, "27f084d1-d6a9-430f-88d7-b937fe2d1a44", "Admin", "admin@example.com", false, false, null, null, "ADMIN", null, null, false, "d0624ad1-f861-4725-9b32-49dbfd5f2051", false, "admin@example.com" },
+                    { "andrzej-user-id", 0, "ca147216-8d4a-4fe8-8d8c-41bbb9b9f999", "Andrzej", "andrzej@example.com", false, false, null, null, "ANDRZEJ", null, null, false, "44eb2f59-b4d6-42f8-b86b-1c86842ad22b", false, "andrzej@example.com" }
                 });
 
             migrationBuilder.InsertData(
@@ -324,9 +324,9 @@ namespace BookYourResource.Migrations
                 columns: new[] { "Id", "Description", "Name" },
                 values: new object[,]
                 {
-                    { "0255fdba-33f1-49e4-be3a-94c5ee215678", "Any electronic device", "Device" },
-                    { "0387c4d5-3510-4424-98f5-3d1a42d164c6", "Rooms, halls, etc.", "Space" },
-                    { "a3eabe9c-d04c-4967-8797-419719a5e753", "Animals like the yellow rubber duck", "Animal" }
+                    { "9e7bf685-70a7-4581-9239-9c0acb3244e8", "Animals like the yellow rubber duck", "Animal" },
+                    { "c1b3bfb2-1275-42f4-bf86-1b9a70e595e0", "Any electronic device", "Device" },
+                    { "fab762cc-991d-4ef2-91a7-7427073e5013", "Rooms, halls, etc.", "Space" }
                 });
 
             migrationBuilder.InsertData(
@@ -334,15 +334,15 @@ namespace BookYourResource.Migrations
                 columns: new[] { "Id", "CodeName", "Details", "Name", "TypeId" },
                 values: new object[,]
                 {
-                    { "6fed3457-edca-4ddc-8d2b-8c45b9ff49f9", "e211", "A classroom with projectors", "Classroom E211", "0387c4d5-3510-4424-98f5-3d1a42d164c6" },
-                    { "c2e6ca0c-1bc1-47fe-805f-3cb9fa501270", "the_duck", "A small yellow rubber duck", "Yellow Rubber Duck", "a3eabe9c-d04c-4967-8797-419719a5e753" },
-                    { "ecc6c2b3-ca4d-4700-87ea-423b22b97bfb", "macbook_pro_1", "Apple MacBook Pro 16 inch", "MacBook Pro", "0255fdba-33f1-49e4-be3a-94c5ee215678" }
+                    { "5b664de7-5feb-425c-aba3-fb1297f29af6", "macbook_pro_1", "Apple MacBook Pro 16 inch", "MacBook Pro", "c1b3bfb2-1275-42f4-bf86-1b9a70e595e0" },
+                    { "6bd4f029-2fa7-4948-8c27-c56cbef2b6fb", "e211", "A classroom with projectors", "Classroom E211", "fab762cc-991d-4ef2-91a7-7427073e5013" },
+                    { "ac80b957-f2df-404e-9380-f19bbb263f84", "the_duck", "A small yellow rubber duck", "Yellow Rubber Duck", "9e7bf685-70a7-4581-9239-9c0acb3244e8" }
                 });
 
             migrationBuilder.InsertData(
                 table: "ResourceAttributes",
                 columns: new[] { "Id", "Name", "ResourceId", "Value" },
-                values: new object[] { "0c34044f-9e02-4234-8847-332a780920e1", "Capacity", "6fed3457-edca-4ddc-8d2b-8c45b9ff49f9", "150" });
+                values: new object[] { "8602105e-6c46-49da-9975-d680fb8d1048", "Capacity", "6bd4f029-2fa7-4948-8c27-c56cbef2b6fb", "150" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
