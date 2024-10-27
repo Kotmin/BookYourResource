@@ -56,12 +56,46 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
         );
 
  
-        // modelBuilder.Entity<Permission>().HasData(
-        //     new Permission { Id = 0, Name = "All", Description = "All Permissions" },
-        //     new Permission { Id = 1, Name = "Read", Description = "Read Only" },
-        //     new Permission { Id = 2, Name = "Make Reservation", Description = "Create reservations" },
-        //     new Permission { Id = 3, Name = "Delete Reservation", Description = "Delete reservations" }
-        // );
+        modelBuilder.Entity<Permission>().HasData(
+            new Permission { Id = 99, Name = "All", Description = "All Permissions" },
+            new Permission { Id = 1, Name = "Read", Description = "Read Only" },
+            new Permission { Id = 2, Name = "Make Reservation", Description = "Create reservations" },
+            new Permission { Id = 3, Name = "Delete Reservation", Description = "Delete reservations" }
+        );
+
+        modelBuilder.Entity<Role>().HasData(
+            new Role
+            {
+                Id = "admin-role-id",
+                Name = "Admin",
+                Description = "Administrator role",
+            },
+            new Role
+            {
+                Id = "user-role-id",
+                Name = "User",
+                Description = "Regular user role",
+            }
+        );
+
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = "admin-user-id",
+                UserName = "admin",
+                Email = "admin@example.com",
+                DisplayName = "Admin",
+                NormalizedUserName = "ADMIN"
+            },
+            new User
+            {
+                Id = "andrzej-user-id",
+                UserName = "andrzej",
+                Email = "andrzej@example.com",
+                DisplayName = "Andrzej",
+                NormalizedUserName = "ANDRZEJ"
+            }
+        );
 
         modelBuilder.Entity<ResourceType>()
             .HasIndex(rt => rt.Name)
