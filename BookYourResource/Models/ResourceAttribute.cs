@@ -4,8 +4,6 @@ public class ResourceAttribute
     public string Name { get; set; }
     public string Value { get; set; }
 
-
-    // public ICollection<Resource> Resources { get; set; } = new List<Resource>();
     public string ResourceId { get; set; }
     public Resource Resource { get; set; } 
 

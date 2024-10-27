@@ -7,8 +7,6 @@ public class Resource
     public string TypeId { get; set; }
     public ResourceType ResourceType  { get; set; }
   
-    public ResourceAttribute ResourceAttributeEntity { get; set; }
-
     public ICollection<ResourceAttribute> ResourceAttributes { get; set; } = new List<ResourceAttribute>();
 
      public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
