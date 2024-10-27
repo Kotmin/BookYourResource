@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyApp.Data;
-using MyApp.Models;
+// using MyApp.Data;
+// using MyApp.Models;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,7 +37,7 @@ namespace MyApp.Controllers
         public async Task<IActionResult> GetReservationsByResource(int id)
         {
             var reservations = await _context.Reservations
-                .Where(r => r.ResourceId == id)
+                .Where(r => r.ResourceId == id.ToString())
                 .Include(r => r.UserEntity)
                 .ToListAsync();
             return Json(reservations);
