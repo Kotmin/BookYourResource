@@ -76,9 +76,11 @@ namespace MyApp.Controllers
             if (user == null) return Unauthorized();
 
             
-            bool isAvailable = await _context.Reservations
-                .Where(r => r.ResourceId == request.ResourceId && r.StatusId == 1) // StatusId 1 - active 
-                .AllAsync(r => request.EndDate <= r.StartDate || request.StartDate >= r.EndDate);
+            // bool isAvailable = await _context.Reservations
+            //     .Where(r => r.ResourceId == request.ResourceId && r.StatusId == 1) // StatusId 1 - active 
+            //     .AllAsync(r => request.EndDate <= r.StartDate || request.StartDate >= r.EndDate);
+
+            bool isAvailable = await IsReservationAvailable(request.ResourceId, request.StartDate, request.EndDate);
 
             if (!isAvailable)
                 return BadRequest("Resource is not available in the selected time.");
@@ -95,6 +97,13 @@ namespace MyApp.Controllers
             _context.Reservations.Add(reservation);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetUserReservations), new { id = reservation.Id }, reservation);
+        }
+
+        private async Task<bool> IsReservationAvailable(string resourceId, DateTime startDate, DateTime endDate)
+        {
+            return await _context.Reservations
+                .Where(r => r.ResourceId == resourceId && r.StatusId == 1) // StatusId 1 - active
+                .AllAsync(r => endDate <= r.StartDate || startDate >= r.EndDate);
         }
 
 
