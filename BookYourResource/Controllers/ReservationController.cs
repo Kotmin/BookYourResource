@@ -95,7 +95,9 @@ public class ReservationsController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
         
-        var reservations = await GetActiveReservationsQuery().ToListAsync();
+        var reservations = await GetActiveReservationsQuery()
+        .Where(r => r.UserId == user.Id)
+        .ToListAsync();
 
         return Json(reservations);
     }
