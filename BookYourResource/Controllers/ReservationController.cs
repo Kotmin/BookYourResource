@@ -178,12 +178,11 @@ public class ReservationsController : Controller
     // Views 
     [AllowAnonymous]
     [HttpGet("")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string query = "")
     {
         var user = await _userManager.GetUserAsync(User);
         var activeReservations = await GetActiveReservationsQuery().ToListAsync();
 
-        // Views with controls if  logged
         var reservations = activeReservations.Select(r => new ReservationViewModel
         {
             Id = r.Id,
@@ -194,8 +193,18 @@ public class ReservationsController : Controller
             CanDelete = user != null && r.UserId == user.Id
         }).ToList();
 
+        // If query is not empty, filter reservations
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            reservations = reservations
+                .Where(r => r.ResourceName.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
         return View(reservations);
     }
+
+
 
     [HttpGet("create")]
     public async Task<IActionResult> CreateReservationForm()
@@ -285,6 +294,57 @@ public class ReservationsController : Controller
     }
 
 
+    [HttpGet("v/q/{name?}")]
+    public async Task<IActionResult> GetReservationsByResourceNameV(string? name)
+    {
+
+        if (string.IsNullOrEmpty(name))
+        {
+            var reservationsAll = await GetActiveReservationsQuery()
+                .Select(r => new ReservationViewModel
+                {
+                    Id = r.Id,
+                    ResourceName = r.ResourceEntity.Name,
+                    UserName = r.UserEntity.UserName,
+                    StartDate = r.StartDate,
+                    EndDate = r.EndDate,
+                    CanDelete = r.UserId == _userManager.GetUserId(User)
+                })
+                .ToListAsync();
+            return Json(reservationsAll);
+        }
+
+        // This query retrieves the reservations based on the resource name instead of CodeName
+        var reservations = await GetActiveReservationsQuery()
+            .Where(r => r.ResourceEntity.Name.Contains(name) || r.ResourceEntity.CodeName.Contains(name))
+            .Select(r => new ReservationViewModel
+            {
+                Id = r.Id,
+                ResourceName = r.ResourceEntity.Name,
+                UserName = r.UserEntity.UserName,
+                StartDate = r.StartDate,
+                EndDate = r.EndDate,
+                CanDelete = r.UserId == _userManager.GetUserId(User)
+            })
+            .ToListAsync();
+
+        if (!reservations.Any())
+        {
+            var suggestions = await _context.Resources
+                .Where(r => EF.Functions.Like(r.Name, $"%{name}%") || EF.Functions.Like(r.CodeName, $"%{name}%"))
+                .Select(r => r.CodeName)
+                .Distinct()
+                .ToListAsync();
+
+            return Json(new
+            {
+                Message = "No reservations found for the specified resource name.",
+                Suggestions = suggestions
+            });
+        }
+
+        return Json(reservations);
+    }
 
 
 }
