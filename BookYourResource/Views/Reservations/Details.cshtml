@@ -1,0 +1,34 @@
+@model ReservationViewModel
+
+<h2>Reservation Details</h2>
+
+<div>
+    <p><strong>Resource Name:</strong> @Model.ResourceName</p>
+    <p><strong>User:</strong> @Model.UserName</p>
+    <p><strong>Start Date:</strong> @Model.StartDate</p>
+    <p><strong>End Date:</strong> @Model.EndDate</p>
+    <p><strong>Hours:</strong> @(Model.EndDate - Model.StartDate).TotalHours</p>
+
+    @if (Model.CanDelete)
+    {
+        <button onclick="deleteReservation(@Model.Id)" class="btn btn-danger">DELETE</button>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function deleteReservation(id) {
+            if (confirm('Are you sure you want to delete this reservation?')) {
+                fetch(`/reservations/${id}`, {
+                    method: 'DELETE'
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.href = "/reservations";
+                    } else {
+                        alert('Failed to delete reservation.');
+                    }
+                });
+            }
+        }
+    </script>
+}
