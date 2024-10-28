@@ -7,7 +7,8 @@
     <p><strong>User:</strong> @Model.UserName</p>
     <p><strong>Start Date:</strong> @Model.StartDate</p>
     <p><strong>End Date:</strong> @Model.EndDate</p>
-    <p><strong>Hours:</strong> @(Model.EndDate - Model.StartDate).TotalHours</p>
+    @* <p><strong>Hours:</strong> @(Model.EndDate - Model.StartDate).TotalHours</p> *@
+    <p><strong>Hours:</strong> @Model.TotalHours</p>
 
     @if (Model.CanDelete)
     {

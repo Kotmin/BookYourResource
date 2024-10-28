@@ -190,6 +190,7 @@ public class ReservationsController : Controller
             UserName = r.UserEntity.UserName,
             StartDate = r.StartDate,
             EndDate = r.EndDate,
+            TotalHours = (r.EndDate - r.StartDate).TotalHours,
             CanDelete = user != null && r.UserId == user.Id
         }).ToList();
 
@@ -287,6 +288,7 @@ public class ReservationsController : Controller
             UserName = reservation.UserEntity.UserName,
             StartDate = reservation.StartDate,
             EndDate = reservation.EndDate,
+            TotalHours = (reservation.EndDate - reservation.StartDate).TotalHours,
             CanDelete = reservation.UserId == _userManager.GetUserId(User)
         };
 
