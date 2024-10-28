@@ -308,7 +308,8 @@ public class ReservationsController : Controller
                     UserName = r.UserEntity.UserName,
                     StartDate = r.StartDate,
                     EndDate = r.EndDate,
-                    CanDelete = r.UserId == _userManager.GetUserId(User)
+                    CanDelete = r.UserId == _userManager.GetUserId(User),
+                    TotalHours = (r.EndDate - r.StartDate).TotalHours
                 })
                 .ToListAsync();
             return Json(reservationsAll);
@@ -324,7 +325,8 @@ public class ReservationsController : Controller
                 UserName = r.UserEntity.UserName,
                 StartDate = r.StartDate,
                 EndDate = r.EndDate,
-                CanDelete = r.UserId == _userManager.GetUserId(User)
+                CanDelete = r.UserId == _userManager.GetUserId(User),
+                TotalHours = (r.EndDate - r.StartDate).TotalHours
             })
             .ToListAsync();
 

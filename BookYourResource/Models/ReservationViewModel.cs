@@ -8,6 +8,10 @@ public class ReservationViewModel
     public bool CanDelete { get; set; }
 
 
+    public double TotalHours { get; set; }
+
+
+
     public string GetFormattedDuration()
     {
         var duration = EndDate - StartDate;

@@ -111,6 +111,37 @@
             clearTimeout(typingTimer);
         });
 
+
+        @* function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-GB', {
+                timeZone: 'UTC',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // This ensures a 24-hour format
+            }).replace(',', ''); // Remove the comma
+        } *@
+
+        function formatDate(dateString) {
+            // Parse the date string in a way that preserves the local timezone
+            const date = new Date(dateString);
+            const options = {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                @* timeZone: 'UTC' // Ensure you're working in UTC for display *@
+            };
+            return date.toLocaleString('en-GB', options).replace(',', ''); // Remove the comma
+        }
+
+
+
         function searchReservations(query) {
             fetch(`/reservations/v/q/${query}`)
                 .then(response => response.json())
@@ -119,6 +150,23 @@
                     tableBody.innerHTML = ''; 
 
                     data.forEach(reservation => {
+
+                        const formattedStartDate = formatDate(reservation.startDate);
+                        const formattedEndDate = formatDate(reservation.endDate);
+                        
+                        // Calculate total hours directly using UTC
+                        @* const startDate = new Date(reservation.startDate).getTime(); // Get time in milliseconds
+                        const endDate = new Date(reservation.endDate).getTime(); *@
+                        @* const totalHours = (endDate - startDate) / 3600000; // Convert millisecond *@
+                        @* const totalHours = (formattedEndDate - formattedStartDate) / 3600000; *@
+
+
+                        const startDate = new Date(formattedStartDate).getTime(); // Get time in milliseconds
+                        const endDate = new Date(formattedEndDate).getTime();
+
+                        const totalHours = (endDate - startDate);
+
+
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             @* <td>${reservation.resourceName}</td> *@
@@ -128,9 +176,18 @@
                                 : reservation.resourceName}
                             </td>
                             <td>${reservation.userName}</td>
-                            <td>${reservation.startDate}</td>
-                            <td>${reservation.endDate}</td>
-                            <td>${(new Date(reservation.endDate) - new Date(reservation.startDate)) / 3600000}</td>
+                            @* <td>${reservation.startDate}</td>
+                            <td>${reservation.endDate}</td>  *@
+
+                            @* <td>${(new Date(reservation.endDate) - new Date(reservation.startDate)) / 3600000}</td> *@
+
+                            <td>${formattedStartDate}</td>
+                            <td>${formattedEndDate}</td>
+                            @* <td>${totalHours}</td>
+                             *@
+
+                            <td>${reservation.totalHours.toFixed(0)}</td> 
+
                             ${reservation.canDelete ? `<td><button onclick="deleteReservation(${reservation.id})" class="btn btn-danger">DELETE</button></td>` : ''}
                         `;
                         tableBody.appendChild(row);
