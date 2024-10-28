@@ -2,7 +2,70 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
+@* <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+</div> *@
+
+
+@model List<ReservationViewModel>
+
+<h2>Active Reservations</h2>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <a asp-action="CreateReservation" class="btn btn-success">NEW</a>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Resource Name</th>
+            <th>User</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            @if (User.Identity.IsAuthenticated) 
+            {
+                <th>Actions</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reservation in Model)
+        {
+            <tr>
+                <td>@reservation.ResourceName</td>
+                <td>@reservation.UserName</td>
+                <td>@reservation.StartDate</td>
+                <td>@reservation.EndDate</td>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <td>
+                        @if (reservation.CanDelete)
+                        {
+                            <button onclick="deleteReservation(@reservation.Id)" class="btn btn-danger">DELETE</button>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        function deleteReservation(id) {
+            if (confirm('Are you sure you want to delete this reservation?')) {
+                fetch(`/reservations/${id}`, {
+                    method: 'DELETE'
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to delete reservation.');
+                    }
+                });
+            }
+        }
+    </script>
+}

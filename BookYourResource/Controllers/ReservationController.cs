@@ -33,7 +33,7 @@ public class ReservationsController : Controller
     }
 
     [AllowAnonymous]
-    [HttpGet("")]
+    [HttpGet("active")]
     public async Task<IActionResult> GetActiveReservations()
     {
         var activeReservations = await GetActiveReservationsQuery().ToListAsync();
@@ -166,5 +166,92 @@ public class ReservationsController : Controller
 
         return NoContent();
     }
+
+
+
+    // Views 
+    [AllowAnonymous]
+    [HttpGet("")]
+    public async Task<IActionResult> Index()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var activeReservations = await GetActiveReservationsQuery().ToListAsync();
+
+        // Views with controls if  logged
+        var reservations = activeReservations.Select(r => new ReservationViewModel
+        {
+            Id = r.Id,
+            ResourceName = r.ResourceEntity.Name,
+            UserName = r.UserEntity.UserName,
+            StartDate = r.StartDate,
+            EndDate = r.EndDate,
+            CanDelete = user != null && r.UserId == user.Id
+        }).ToList();
+
+        return View(reservations);
+    }
+
+    [HttpGet("create")]
+    public IActionResult CreateReservationForm()
+    {
+        return View();
+    }
+
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateReservationV([FromForm] ReservationRequest request)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        
+        if (!IsValidHourReservation(request.StartDate, request.EndDate))
+        {
+            ModelState.AddModelError("", "Reservations must be in full-hour increments.");
+            return View("CreateReservationForm", request);
+        }
+
+        
+        var apiResult = await CreateReservation(request);
+
+        if (apiResult is BadRequestObjectResult badRequest)
+        {
+            ModelState.AddModelError("", badRequest.Value?.ToString());
+            return View("CreateReservationForm", request);
+        }
+        if (apiResult is UnauthorizedResult)
+        {
+            return Unauthorized();
+        }
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet("v/{id:int}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        var reservation = await _context.Reservations
+            .Include(r => r.UserEntity)
+            .Include(r => r.ResourceEntity)
+            .Where(r => r.Id == id)
+            .FirstOrDefaultAsync();
+
+        if (reservation == null) return NotFound();
+
+        var model = new ReservationViewModel
+        {
+            Id = reservation.Id,
+            ResourceName = reservation.ResourceEntity.Name,
+            UserName = reservation.UserEntity.UserName,
+            StartDate = reservation.StartDate,
+            EndDate = reservation.EndDate,
+            CanDelete = reservation.UserId == _userManager.GetUserId(User)
+        };
+
+        return View(model);
+    }
+
+
+
+
 }
 
