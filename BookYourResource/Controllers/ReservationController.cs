@@ -36,14 +36,19 @@ public class ReservationsController : Controller
     [HttpGet("")]
     public async Task<IActionResult> GetActiveReservations()
     {
-        var activeReservations = await _context.Reservations
-            .Where(r => r.StatusId == 1) 
-            .Include(r => r.UserEntity)
-            .Include(r => r.ResourceEntity)
-            .ToListAsync();
+        var activeReservations = await GetActiveReservationsQuery().ToListAsync();
 
         return Json(activeReservations);
     }
+
+    private IQueryable<Reservation> GetActiveReservationsQuery()
+    {
+        return _context.Reservations
+            .Where(r => r.StatusId == 1) // Just active Reservations
+            .Include(r => r.UserEntity)
+            .Include(r => r.ResourceEntity);
+    }
+
 
 
 
@@ -61,16 +66,28 @@ public class ReservationsController : Controller
     [HttpGet("q/{name}")]
     public async Task<IActionResult> GetReservationsByResourceName(string name)
     {
-        var reservations = await _context.Reservations
-            .Where(r => r.ResourceEntity.CodeName == name)
-            .Include(r => r.UserEntity)
-            .ToListAsync();
+    var reservations = await GetActiveReservationsQuery()
+        .Where(r => r.ResourceEntity.CodeName == name)
+        .ToListAsync();
 
         if (!reservations.Any())
-        return NotFound("No reservations found for the specified resource name.");
-        
+        {
+            var suggestions = await _context.Resources
+                .Where(r => EF.Functions.Like(r.CodeName, $"%{name}%"))
+                .Select(r => r.CodeName)
+                .Distinct()
+                .ToListAsync();
+
+            return Json(new
+            {
+                Message = "No reservations found for the specified resource name.",
+                Suggestions = suggestions
+            });
+        }
+
         return Json(reservations);
     }
+
 
     [HttpGet("u/me")]
     public async Task<IActionResult> GetUserReservations()
@@ -78,10 +95,7 @@ public class ReservationsController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
         
-        var reservations = await _context.Reservations
-            .Where(r => r.UserId == user.Id)
-            .Include(r => r.ResourceEntity)
-            .ToListAsync();
+        var reservations = await GetActiveReservationsQuery().ToListAsync();
 
         return Json(reservations);
     }
