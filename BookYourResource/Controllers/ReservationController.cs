@@ -22,7 +22,7 @@ public class ReservationsController : Controller
     }
 
 
-    [HttpGet("")]
+    [HttpGet("all")]
     public async Task<IActionResult> GetAllReservations()
     {
         var reservations = await _context.Reservations
@@ -31,6 +31,21 @@ public class ReservationsController : Controller
             .ToListAsync();
         return Json(reservations);
     }
+
+    [AllowAnonymous]
+    [HttpGet("")]
+    public async Task<IActionResult> GetActiveReservations()
+    {
+        var activeReservations = await _context.Reservations
+            .Where(r => r.StatusId == 1) 
+            .Include(r => r.UserEntity)
+            .Include(r => r.ResourceEntity)
+            .ToListAsync();
+
+        return Json(activeReservations);
+    }
+
+
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetReservationsByResource(int id)
@@ -41,7 +56,7 @@ public class ReservationsController : Controller
             .ToListAsync();
         return Json(reservations);
     }
-
+    //  [ ]: Maybe LinQ use here? 
     // Filter resources by CODE name (should be unique)
     [HttpGet("q/{name}")]
     public async Task<IActionResult> GetReservationsByResourceName(string name)
@@ -50,6 +65,10 @@ public class ReservationsController : Controller
             .Where(r => r.ResourceEntity.CodeName == name)
             .Include(r => r.UserEntity)
             .ToListAsync();
+
+        if (!reservations.Any())
+        return NotFound("No reservations found for the specified resource name.");
+        
         return Json(reservations);
     }
 
@@ -75,10 +94,6 @@ public class ReservationsController : Controller
         if (user == null) return Unauthorized();
 
         
-        // bool isAvailable = await _context.Reservations
-        //     .Where(r => r.ResourceId == request.ResourceId && r.StatusId == 1) // StatusId 1 - active 
-        //     .AllAsync(r => request.EndDate <= r.StartDate || request.StartDate >= r.EndDate);
-
         bool isAvailable = await IsReservationAvailable(request.ResourceId, request.StartDate, request.EndDate);
 
         if (!isAvailable)
