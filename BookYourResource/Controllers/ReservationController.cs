@@ -109,6 +109,11 @@ public class ReservationsController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
+        if (!IsValidHourReservation(request.StartDate, request.EndDate))
+        {
+            return BadRequest("Reservations must be in full-hour increments.");
+        }
+
         
         bool isAvailable = await IsReservationAvailable(request.ResourceId, request.StartDate, request.EndDate);
 
@@ -134,6 +139,13 @@ public class ReservationsController : Controller
         return await _context.Reservations
             .Where(r => r.ResourceId == resourceId && r.StatusId == 1) // StatusId 1 - active
             .AllAsync(r => endDate <= r.StartDate || startDate >= r.EndDate);
+    }
+
+    private bool IsValidHourReservation(DateTime startDate, DateTime endDate)
+    {
+        // Check if Reservation time is a valid value, n*60 minutes, where n=1,2,3...
+        var duration = endDate - startDate;
+        return duration.TotalMinutes > 0 & duration.TotalMinutes % 60 == 0;
     }
 
 
