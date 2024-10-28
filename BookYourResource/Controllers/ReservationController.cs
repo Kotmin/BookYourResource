@@ -220,19 +220,21 @@ public class ReservationsController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
-        
         if (!IsValidHourReservation(request.StartDate, request.EndDate))
         {
             ModelState.AddModelError("", "Reservations must be in full-hour increments.");
+            // Load the resources again when returning to the view
+            await LoadResources();
             return View("CreateReservationForm", request);
         }
 
-        
         var apiResult = await CreateReservation(request);
 
         if (apiResult is BadRequestObjectResult badRequest)
         {
             ModelState.AddModelError("", badRequest.Value?.ToString());
+            // Load the resources again when returning to the view
+            await LoadResources();
             return View("CreateReservationForm", request);
         }
         if (apiResult is UnauthorizedResult)
@@ -242,6 +244,21 @@ public class ReservationsController : Controller
 
         return RedirectToAction("Index");
     }
+
+
+    private async Task LoadResources()
+    {
+        var resources = await _context.Resources
+            .Select(r => new 
+            {
+                r.Id,
+                DisplayName = $"{r.Name} ({r.CodeName}) - {r.Details} [{r.ResourceType.Name}]"
+            })
+            .ToListAsync();
+
+        ViewBag.Resources = new SelectList(resources, "Id", "DisplayName");
+    }
+
 
     [HttpGet("v/{id:int}")]
     public async Task<IActionResult> Details(int id)
