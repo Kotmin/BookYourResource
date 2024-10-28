@@ -6,20 +6,20 @@
     <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="form-group">
-        <label asp-for="ResourceId">Resource ID</label>
-        <input asp-for="ResourceId" class="form-control" />
+        <label asp-for="ResourceId">Resource</label>
+        <select asp-for="ResourceId" class="form-control" asp-items="ViewBag.Resources"></select>
         <span asp-validation-for="ResourceId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="StartDate">Start Date</label>
-        <input asp-for="StartDate" class="form-control" />
+        <label asp-for="StartDate">Start Date and Time</label>
+        <input asp-for="StartDate" class="form-control" type="datetime-local" />
         <span asp-validation-for="StartDate" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="EndDate">End Date</label>
-        <input asp-for="EndDate" class="form-control" />
+        <label asp-for="EndDate">End Date and Time</label>
+        <input asp-for="EndDate" class="form-control" type="datetime-local" />
         <span asp-validation-for="EndDate" class="text-danger"></span>
     </div>
 

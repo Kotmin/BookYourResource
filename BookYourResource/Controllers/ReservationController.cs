@@ -7,6 +7,12 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
+using Microsoft.AspNetCore.Mvc.Rendering; //  req SelectList
+
+
+
+
+
 
 [Authorize]
 [Route("reservations")]
@@ -192,10 +198,21 @@ public class ReservationsController : Controller
     }
 
     [HttpGet("create")]
-    public IActionResult CreateReservationForm()
+    public async Task<IActionResult> CreateReservationForm()
     {
+        var resources = await _context.Resources
+            .Select(r => new 
+            {
+                r.Id,
+                DisplayName = $"{r.Name} ({r.CodeName}) - {r.Details} [{r.ResourceType.Name}]"
+            })
+            .ToListAsync();
+
+        ViewBag.Resources = new SelectList(resources, "Id", "DisplayName");
+
         return View();
     }
+
 
     [HttpPost("create")]
     public async Task<IActionResult> CreateReservationV([FromForm] ReservationRequest request)
