@@ -73,7 +73,7 @@ public class ReservationsController : Controller
     public async Task<IActionResult> GetReservationsByResourceName(string name)
     {
     var reservations = await GetActiveReservationsQuery()
-        .Where(r => r.ResourceEntity.CodeName == name)
+        .Where(r => r.ResourceEntity.Name.Contains(resourceName) || r.ResourceEntity.CodeName.Contains(resourceName));
         .ToListAsync();
 
         if (!reservations.Any())
@@ -349,6 +349,40 @@ public class ReservationsController : Controller
 
         return Json(reservations);
     }
+
+    [AllowAnonymous]
+    [HttpGet("grouped/{resourceName?}")]
+    public async Task<IActionResult> GetReservationsGroupedByDayAndResource(string? resourceName)
+    {
+        var query = GetActiveReservationsQuery();
+
+        if (!string.IsNullOrEmpty(resourceName))
+        {
+            query = query.Where(r => r.ResourceEntity.Name.Contains(resourceName) || r.ResourceEntity.CodeName.Contains(resourceName));
+        }
+
+        var groupedReservations = await query
+            .GroupBy(r => new { Day = r.StartDate.Date, ResourceName = r.ResourceEntity.Name })
+            .Select(g => new
+            {
+                Day = g.Key.Day,
+                ResourceName = g.Key.ResourceName,
+                Reservations = g.Select(r => new
+                {
+                    Id = r.Id,
+                    UserName = r.UserEntity.UserName,
+                    StartDate = r.StartDate,
+                    EndDate = r.EndDate,
+                    TotalHours = (r.EndDate - r.StartDate).TotalHours
+                }).OrderBy(r => r.StartDate).ToList()
+            })
+            .OrderBy(g => g.Day)
+            .ThenBy(g => g.ResourceName)
+            .ToListAsync();
+
+        return Json(groupedReservations);
+    }
+
 
 
 }
