@@ -22,10 +22,17 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <partial name="_LoginPartial.cshtml"/>
+                        <ul class="navbar-nav ms-auto d-none d-lg-flex">
+                            <partial name="_LoginPartial.cshtml"/>
+                        </ul>
+                        <div class="d-lg-none mt-2">
+                            <partial name="_LoginPartial.cshtml"/>
+                        </div>
+
                     </ul>
                 </div>
             </div>
