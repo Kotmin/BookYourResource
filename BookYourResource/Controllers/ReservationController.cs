@@ -388,6 +388,10 @@ public class ReservationsController : Controller
     [HttpGet("grouped/{resourceName?}")]
     public async Task<IActionResult> GetReservationsGroupedByDayAndResource(string? resourceName)
     {
+
+        var user = await _userManager.GetUserAsync(User);
+
+        
         var query = GetActiveReservationsQuery();
 
         if (!string.IsNullOrEmpty(resourceName))
