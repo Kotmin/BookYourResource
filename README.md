@@ -20,6 +20,13 @@ Your Way of making reservations.
 ![obraz](https://github.com/user-attachments/assets/dead737e-f78f-46ff-85b3-1c99a5563bf9)
 
 
+## Conceptual ERD Diagram
+
+![diagram-export-29 10 2024-22_19_44](https://github.com/user-attachments/assets/5b66e547-e5a2-4e6c-aabf-e0af6fdfce55)
+
+
+\* Users and Roles are in use with entities from Identity
+
 
 ---
 ## How to participate?
