@@ -38,14 +38,35 @@ public class ReservationsController : Controller
         return Json(reservations);
     }
 
+    // [AllowAnonymous]
+    // [HttpGet("active")]
+    // public async Task<IActionResult> GetActiveReservations()
+    // {
+    //     var activeReservations = await GetSortedActiveReservationsQuery().ToListAsync();
+
+    //     return Json(activeReservations);
+    // }
+
     [AllowAnonymous]
     [HttpGet("active")]
     public async Task<IActionResult> GetActiveReservations()
     {
-        var activeReservations = await GetActiveReservationsQuery().ToListAsync();
+        var activeReservations = await GetSortedActiveReservationsQuery()
+            .Select(r => new ReservationDto
+            {
+                Id = r.Id,
+                UserName = r.UserEntity.Email, 
+                ResourceName = r.ResourceEntity.Name,
+                StartDate = r.StartDate,
+                EndDate = r.EndDate,
+                
+                TotalHours = (r.EndDate - r.StartDate).TotalHours
+            })
+            .ToListAsync();
 
         return Json(activeReservations);
     }
+
 
     private IQueryable<Reservation> GetActiveReservationsQuery()
     {
@@ -55,6 +76,16 @@ public class ReservationsController : Controller
             .Include(r => r.ResourceEntity);
     }
 
+
+    private IQueryable<Reservation> GetSortedActiveReservationsQuery()
+    {
+        return _context.Reservations
+            .Where(r => r.StatusId == 1)
+            .Include(r => r.UserEntity)
+            .Include(r => r.ResourceEntity)
+            .OrderBy(r => r.ResourceEntity.Name) 
+            .ThenBy(r => r.StartDate.Date); 
+    }
 
 
 
@@ -67,13 +98,12 @@ public class ReservationsController : Controller
             .ToListAsync();
         return Json(reservations);
     }
-    //  [ ]: Maybe LinQ use here? 
-    // Filter resources by CODE name (should be unique)
+
     [HttpGet("q/{name}")]
     public async Task<IActionResult> GetReservationsByResourceName(string name)
     {
     var reservations = await GetActiveReservationsQuery()
-        // .Where(r => r.ResourceEntity.CodeName == name)
+        
         .Where(r => r.ResourceEntity.Name.Contains(name) || r.ResourceEntity.CodeName.Contains(name))
         .ToListAsync();
 
@@ -177,13 +207,15 @@ public class ReservationsController : Controller
 
 
     // Views 
+
+
     [AllowAnonymous]
     [HttpGet("")]
     public async Task<IActionResult> Index(string query = "")
     {
         var user = await _userManager.GetUserAsync(User);
-        // TODO change it to GetActiveReservations()
-        var activeReservations = await GetActiveReservationsQuery().ToListAsync();
+      
+        var activeReservations = await GetSortedActiveReservationsQuery().ToListAsync();;
 
         var reservations = activeReservations.Select(r => new ReservationViewModel
         {
@@ -375,7 +407,8 @@ public class ReservationsController : Controller
                     UserName = r.UserEntity.UserName,
                     StartDate = r.StartDate,
                     EndDate = r.EndDate,
-                    TotalHours = (r.EndDate - r.StartDate).TotalHours
+                    TotalHours = (r.EndDate - r.StartDate).TotalHours,
+                    CanDelete = user != null && r.UserId == user.Id
                 }).OrderBy(r => r.StartDate).ToList()
             })
             .OrderBy(g => g.Day)

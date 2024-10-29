@@ -10,6 +10,9 @@ public class ReservationViewModel
 
     public double TotalHours { get; set; }
 
+    // alt (consider int instead double)
+    // public double TotalHours => GetTotalHours();
+
 
 
     public string GetFormattedDuration()
