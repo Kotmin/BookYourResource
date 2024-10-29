@@ -1,9 +1,29 @@
 # BookYourResource
 
 Your Way of making reservations.
+![obraz](https://github.com/user-attachments/assets/a74254ea-07be-42c6-81bc-6e7672d473d1)
+
+
+
+## Most important API endpoints:
+- `/reservations/active` - returns JSON of active and sorted Reservations
+- `/reservations/grouped/<resource_name>` - returns JSON of active Reservations of Resource grouped by StartDay(Reservation start)
+
+\* Name refers to Resource: Name and CodeName
+
+## Features
+- Seeded db for testing
+- User Andrzej
+- Can be used for various types of Resources
+- Prepared for future features
+
+![obraz](https://github.com/user-attachments/assets/dead737e-f78f-46ff-85b3-1c99a5563bf9)
+
+
 
 ---
-
+## How to participate?
+1. Use commit convention
 ## Conventional Commits Messages
 
 ### Types
