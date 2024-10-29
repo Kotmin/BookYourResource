@@ -126,9 +126,99 @@
             return date.toLocaleString('en-GB', options).replace(',', ''); // Remove the comma
         }
 
+        function formatDay(dateString) {
+            const date = new Date(dateString);
+            const options = {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            };
+            return date.toLocaleDateString('en-GB', options);
+        }
 
+
+        @* function searchReservations(query) {
+            fetch(`/reservations/grouped/${query || ''}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector("table tbody");
+                    tableBody.innerHTML = ''; 
+
+                    data.forEach(dayGroup => {
+                      
+                        const dayRow = document.createElement('tr');
+                        dayRow.innerHTML = `<td colspan="6" style="font-weight: bold; text-align: left;">Day: ${new Date(dayGroup.Day).toLocaleDateString('en-GB')}</td>`;
+                        tableBody.appendChild(dayRow);
+
+                        dayGroup.Reservations.forEach(reservation => {
+                            const formattedStartDate = formatDate(reservation.StartDate);
+                            const formattedEndDate = formatDate(reservation.EndDate);
+
+                            
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>
+                                ${isAuthenticated
+                                    ? `<a href="/reservations/v/${reservation.Id}">${dayGroup.ResourceName}</a>` 
+                                    : dayGroup.ResourceName}
+                                </td>
+                                <td>${reservation.UserName}</td>
+                                <td>${formattedStartDate}</td>
+                                <td>${formattedEndDate}</td>
+                                <td>${reservation.TotalHours.toFixed(1)}</td>
+                                ${reservation.canDelete ? `<td><button onclick="deleteReservation(${reservation.Id})" class="btn btn-danger">DELETE</button></td>` : ''}
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    });
+                })
+                .catch(error => console.error('Something went wrong:', error));
+        } *@
 
         function searchReservations(query) {
+            fetch(`/reservations/grouped/${query || ''}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector("table tbody");
+                    tableBody.innerHTML = ''; 
+
+                    data.forEach(dayGroup => {
+                       
+                        const formattedDay = formatDay(dayGroup.day);
+                        
+                       
+                        const dayRow = document.createElement('tr');
+                        dayRow.innerHTML = `<td colspan="6" style="font-weight: bold; text-align: left;">Day: ${formattedDay}</td>`;
+                        tableBody.appendChild(dayRow);
+
+                        
+                        dayGroup.reservations.forEach(reservation => {
+                            const formattedStartDate = formatDate(reservation.startDate);
+                            const formattedEndDate = formatDate(reservation.endDate);
+
+                            
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>
+                                ${isAuthenticated
+                                    ? `<a href="/reservations/v/${reservation.id}">${dayGroup.resourceName}</a>` 
+                                    : dayGroup.resourceName}
+                                </td>
+                                <td>${reservation.userName}</td>
+                                <td>${formattedStartDate}</td>
+                                <td>${formattedEndDate}</td>
+                                <td>${reservation.totalHours.toFixed(0)}</td>
+                                ${reservation.canDelete ? `<td><button onclick="deleteReservation(${reservation.id})" class="btn btn-danger">DELETE</button></td>` : ''}
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    });
+                })
+                .catch(error => console.error('Something went wrong:', error));
+        }
+
+
+        @* function searchReservations(query) {
             fetch(`/reservations/v/q/${query}`)
                 .then(response => response.json())
                 .then(data => {
@@ -139,12 +229,8 @@
 
                         const formattedStartDate = formatDate(reservation.startDate);
                         const formattedEndDate = formatDate(reservation.endDate);
-                        
-                        
-                       
-
-
                         const row = document.createElement('tr');
+
                         row.innerHTML = `
                          
                             <td>
@@ -165,6 +251,6 @@
                         tableBody.appendChild(row);
                     });
                 });
-        }
+        } *@
     </script>
 }

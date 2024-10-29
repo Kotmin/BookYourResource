@@ -73,7 +73,8 @@ public class ReservationsController : Controller
     public async Task<IActionResult> GetReservationsByResourceName(string name)
     {
     var reservations = await GetActiveReservationsQuery()
-        .Where(r => r.ResourceEntity.Name.Contains(resourceName) || r.ResourceEntity.CodeName.Contains(resourceName));
+        // .Where(r => r.ResourceEntity.CodeName == name)
+        .Where(r => r.ResourceEntity.Name.Contains(name) || r.ResourceEntity.CodeName.Contains(name))
         .ToListAsync();
 
         if (!reservations.Any())
@@ -181,6 +182,7 @@ public class ReservationsController : Controller
     public async Task<IActionResult> Index(string query = "")
     {
         var user = await _userManager.GetUserAsync(User);
+        // TODO change it to GetActiveReservations()
         var activeReservations = await GetActiveReservationsQuery().ToListAsync();
 
         var reservations = activeReservations.Select(r => new ReservationViewModel
