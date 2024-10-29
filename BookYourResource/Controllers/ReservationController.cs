@@ -398,7 +398,7 @@ public class ReservationsController : Controller
 
     [AllowAnonymous]
     [HttpGet("grouped/{resourceName?}")]
-    public async Task<IActionResult> GetReservationsGroupedByDayAndResource(string? resourceName)
+    public async Task<IActionResult> GetReservationsGroupedByDayAndResource(string? resourceName, bool ownOnly = false)
     {
 
         var user = await _userManager.GetUserAsync(User);
@@ -409,6 +409,11 @@ public class ReservationsController : Controller
         if (!string.IsNullOrEmpty(resourceName))
         {
             query = query.Where(r => r.ResourceEntity.Name.Contains(resourceName) || r.ResourceEntity.CodeName.Contains(resourceName));
+        }
+
+        if (ownOnly && user != null)
+        {
+            query = query.Where(r => r.UserId == user.Id);
         }
 
         var groupedReservations = await query

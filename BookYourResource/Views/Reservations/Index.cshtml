@@ -11,6 +11,11 @@
 @if (User.Identity.IsAuthenticated) 
 {
     <input id="search-input" type="text" placeholder="Search by resource name..." class="form-control mb-3" style="display:inline-block; width: 200px;" />
+
+    <div class="form-check form-switch" style="display: inline-block; margin-left: 10px;">
+        <input class="form-check-input" type="checkbox" id="own-reservations-toggle">
+        <label class="form-check-label" for="own-reservations-toggle">My Reservations Only</label>
+    </div>
 }
 
 <table class="table">
@@ -136,7 +141,7 @@
             return date.toLocaleDateString('en-GB', options);
         }
 
-        function searchReservations(query) {
+        @* function searchReservations(query) {
             fetch(`/reservations/grouped/${query || ''}`)
                 .then(response => response.json())
                 .then(data => {
@@ -176,7 +181,53 @@
                     });
                 })
                 .catch(error => console.error('Something went wrong:', error));
+        } *@
+
+        // Event listener for the "My Reservations Only" toggle
+        document.getElementById('own-reservations-toggle').addEventListener('change', function() {
+            const query = document.getElementById('search-input').value;
+            searchReservations(query);
+        });
+
+        function searchReservations(query) {
+            const showOwnReservations = document.getElementById('own-reservations-toggle').checked;
+
+            fetch(`/reservations/grouped/${query || ''}?ownOnly=${showOwnReservations}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector("table tbody");
+                    tableBody.innerHTML = ''; 
+
+                    data.forEach(dayGroup => {
+                        const formattedDay = formatDay(dayGroup.day);
+                        const dayRow = document.createElement('tr');
+                        dayRow.innerHTML = `<td colspan="6" style="font-weight: bold; text-align: left;">Day: ${formattedDay}</td>`;
+                        tableBody.appendChild(dayRow);
+
+                        dayGroup.reservations.forEach(reservation => {
+                            const formattedStartDate = formatDate(reservation.startDate);
+                            const formattedEndDate = formatDate(reservation.endDate);
+
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>
+                                ${isAuthenticated
+                                    ? `<a href="/reservations/v/${reservation.id}">${dayGroup.resourceName}</a>` 
+                                    : dayGroup.resourceName}
+                                </td>
+                                <td>${reservation.userName}</td>
+                                <td>${formattedStartDate}</td>
+                                <td>${formattedEndDate}</td>
+                                <td>${reservation.totalHours.toFixed(0)}</td>
+                                ${reservation.canDelete ? `<td><button onclick="deleteReservation(${reservation.id})" class="btn btn-danger">DELETE</button></td>` : ''}
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    });
+                })
+                .catch(error => console.error('Something went wrong:', error));
         }
+
 
 
         @* function searchReservations(query) {
