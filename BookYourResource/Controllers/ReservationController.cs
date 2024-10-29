@@ -38,14 +38,6 @@ public class ReservationsController : Controller
         return Json(reservations);
     }
 
-    // [AllowAnonymous]
-    // [HttpGet("active")]
-    // public async Task<IActionResult> GetActiveReservations()
-    // {
-    //     var activeReservations = await GetSortedActiveReservationsQuery().ToListAsync();
-
-    //     return Json(activeReservations);
-    // }
 
     [AllowAnonymous]
     [HttpGet("active")]
@@ -151,7 +143,17 @@ public class ReservationsController : Controller
             return BadRequest("Reservations must be in full-hour increments.");
         }
 
+         if (!IsFutureDate(request.StartDate))
+        {
+            return BadRequest("The start date cannot be in the past.");
+        }
         
+        if (!IsValidDateRange(request.StartDate, request.EndDate))
+        {
+            return BadRequest("The end date must be after the start date.");
+        }
+
+
         bool isAvailable = await IsReservationAvailable(request.ResourceId, request.StartDate, request.EndDate);
 
         if (!isAvailable)
@@ -183,6 +185,16 @@ public class ReservationsController : Controller
         // Check if Reservation time is a valid value, n*60 minutes, where n=1,2,3...
         var duration = endDate - startDate;
         return duration.TotalMinutes > 0 & duration.TotalMinutes % 60 == 0;
+    }
+
+    private bool IsFutureDate(DateTime startDate)
+    {
+        return startDate >= DateTime.Now;
+    }
+
+    private bool IsValidDateRange(DateTime startDate, DateTime endDate)
+    {
+        return endDate > startDate;
     }
 
 
