@@ -27,10 +27,7 @@ public class ReservationsController : Controller
     [HttpGet("all")]
     public async Task<IActionResult> GetAllReservations()
     {
-        var reservations = await _context.Reservations
-            .Include(r => r.UserEntity)
-            .Include(r => r.ResourceEntity)
-            .ToListAsync();
+        var reservations = await _reservationService.GetAllReservations;
         return Json(reservations);
     }
 
@@ -38,65 +35,28 @@ public class ReservationsController : Controller
     [HttpGet("active")]
     public async Task<IActionResult> GetActiveReservations()
     {
-        var activeReservations = await GetSortedActiveReservationsQuery()
-            .Select(r => new ReservationDto
-            {
-                Id = r.Id,
-                UserName = r.UserEntity.Email, 
-                ResourceName = r.ResourceEntity.Name,
-                StartDate = r.StartDate,
-                EndDate = r.EndDate,
-                
-                TotalHours = (r.EndDate - r.StartDate).TotalHours
-            })
-            .ToListAsync();
+        var activeReservations = await _reservationService.GetActiveReservations();
 
         return Json(activeReservations);
     }
 
-    private IQueryable<Reservation> GetActiveReservationsQuery()
-    {
-        return _context.Reservations
-            .Where(r => r.StatusId == 1) // Just active Reservations
-            .Include(r => r.UserEntity)
-            .Include(r => r.ResourceEntity);
-    }
 
-    private IQueryable<Reservation> GetSortedActiveReservationsQuery()
-    {
-        return _context.Reservations
-            .Where(r => r.StatusId == 1)
-            .Include(r => r.UserEntity)
-            .Include(r => r.ResourceEntity)
-            .OrderBy(r => r.ResourceEntity.Name) 
-            .ThenBy(r => r.StartDate.Date); 
-    }
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetReservationsByResource(int id)
+    public async Task<IActionResult> GetReservationsByResourceId(int id)
     {
-        var reservations = await _context.Reservations
-            .Where(r => r.ResourceId == id.ToString())
-            .Include(r => r.UserEntity)
-            .ToListAsync();
+        var reservations = await _reservationService.GetReservationsByResource(id);
         return Json(reservations);
     }
 
     [HttpGet("q/{name}")]
     public async Task<IActionResult> GetReservationsByResourceName(string name)
     {
-    var reservations = await GetActiveReservationsQuery()
-        
-        .Where(r => r.ResourceEntity.Name.Contains(name) || r.ResourceEntity.CodeName.Contains(name))
-        .ToListAsync();
+    var reservations = await _reservationService.GetReservationsByResourceName(name);
 
         if (!reservations.Any())
         {
-            var suggestions = await _context.Resources
-                .Where(r => EF.Functions.Like(r.CodeName, $"%{name}%"))
-                .Select(r => r.CodeName)
-                .Distinct()
-                .ToListAsync();
+            var suggestions =  await _reservationService.GetResourceNameSuggestions(name);
 
             return Json(new
             {
@@ -114,72 +74,115 @@ public class ReservationsController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
         
-        var reservations = await GetActiveReservationsQuery()
+        var reservations = _reservationService.GetActiveReservationsQuery()
         .Where(r => r.UserId == user.Id)
         .ToListAsync();
 
         return Json(reservations);
     }
 
-    [HttpPost("")]
+    // [HttpPost("")]
+    // public async Task<IActionResult> CreateReservation([FromBody] ReservationRequest request)
+    // {
+    //     var user = await _userManager.GetUserAsync(User);
+    //     if (user == null) return Unauthorized();
+
+    //     if (!IsValidHourReservation(request.StartDate, request.EndDate))
+    //         return BadRequest("Reservations must be in full-hour increments.");
+
+
+    //      if (!IsFutureDate(request.StartDate))
+    //         return BadRequest("The start date cannot be in the past.");
+        
+    //     if (!IsValidDateRange(request.StartDate, request.EndDate))
+    //         return BadRequest("The end date must be after the start date.");
+
+
+    //     // bool isAvailable = await IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
+    //     bool isAvailable = await _reservationService.IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
+
+    //     if (!isAvailable)
+    //         return BadRequest("Resource is not available in the selected time.");
+
+    //     var reservation = new Reservation
+    //     {
+    //         UserId = user.Id,
+    //         ResourceId = request.ResourceId,
+    //         StartDate = request.StartDate,
+    //         EndDate = request.EndDate,
+    //         StatusId = 1 
+    //     };
+
+    //     _context.Reservations.Add(reservation);
+    //     await _context.SaveChangesAsync();
+    //     return CreatedAtAction(nameof(GetUserReservations), new { id = reservation.Id }, reservation);
+    // }
+
+    // public async Task<bool> IsResourceAvailable(string resourceId, DateTime startDate, DateTime endDate) 
+    // {
+    //     return await _context.Reservations
+    //         .Where(r => r.ResourceId == resourceId && r.StatusId == 1) // StatusId 1 - active
+    //         .AllAsync(r => endDate <= r.StartDate || startDate >= r.EndDate);
+    // }
+
+    // private bool IsValidHourReservation(DateTime startDate, DateTime endDate)
+    // {
+    //     // Check if Reservation time is a valid value, n*60 minutes, where n=1,2,3...
+    //     var duration = endDate - startDate;
+    //     return duration.TotalMinutes > 0 & duration.TotalMinutes % 60 == 0;
+    // }
+
+    // private bool IsFutureDate(DateTime startDate)
+    // {
+    //     return startDate >= DateTime.Now;
+    // }
+
+    // private bool IsValidDateRange(DateTime startDate, DateTime endDate)
+    // {
+    //     return endDate > startDate;
+    // }
+
+    // [HttpDelete("{id:int}")]
+    // public async Task<IActionResult> DeleteReservation(int id)
+    // {
+    //     var user = await _userManager.GetUserAsync(User);
+    //     if (user == null) return Unauthorized();
+
+    //     var reservation = await _context.Reservations
+    //         .Where(r => r.Id == id && r.UserId == user.Id)
+    //         .FirstOrDefaultAsync();
+
+    //     if (reservation == null) return NotFound("Reservation not found or you are not authorized.");
+
+    //     reservation.StatusId = 2;
+    //     await _context.SaveChangesAsync();
+
+    //     return NoContent();
+    // }
+
+        [HttpPost("")]
     public async Task<IActionResult> CreateReservation([FromBody] ReservationRequest request)
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
-        if (!IsValidHourReservation(request.StartDate, request.EndDate))
+        if (!_reservationService.IsValidHourReservation(request.StartDate, request.EndDate))
             return BadRequest("Reservations must be in full-hour increments.");
 
-
-         if (!IsFutureDate(request.StartDate))
+        if (!_reservationService.IsFutureDate(request.StartDate))
             return BadRequest("The start date cannot be in the past.");
         
-        if (!IsValidDateRange(request.StartDate, request.EndDate))
+        if (!_reservationService.IsValidDateRange(request.StartDate, request.EndDate))
             return BadRequest("The end date must be after the start date.");
 
-
-        // bool isAvailable = await IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
         bool isAvailable = await _reservationService.IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
 
         if (!isAvailable)
             return BadRequest("Resource is not available in the selected time.");
 
-        var reservation = new Reservation
-        {
-            UserId = user.Id,
-            ResourceId = request.ResourceId,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate,
-            StatusId = 1 
-        };
+        var reservation = await _reservationService.CreateReservationAsync(request.ResourceId, request.StartDate, request.EndDate, user.Id);
 
-        _context.Reservations.Add(reservation);
-        await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetUserReservations), new { id = reservation.Id }, reservation);
-    }
-
-    public async Task<bool> IsResourceAvailable(string resourceId, DateTime startDate, DateTime endDate) 
-    {
-        return await _context.Reservations
-            .Where(r => r.ResourceId == resourceId && r.StatusId == 1) // StatusId 1 - active
-            .AllAsync(r => endDate <= r.StartDate || startDate >= r.EndDate);
-    }
-
-    private bool IsValidHourReservation(DateTime startDate, DateTime endDate)
-    {
-        // Check if Reservation time is a valid value, n*60 minutes, where n=1,2,3...
-        var duration = endDate - startDate;
-        return duration.TotalMinutes > 0 & duration.TotalMinutes % 60 == 0;
-    }
-
-    private bool IsFutureDate(DateTime startDate)
-    {
-        return startDate >= DateTime.Now;
-    }
-
-    private bool IsValidDateRange(DateTime startDate, DateTime endDate)
-    {
-        return endDate > startDate;
     }
 
     [HttpDelete("{id:int}")]
@@ -188,14 +191,9 @@ public class ReservationsController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
-        var reservation = await _context.Reservations
-            .Where(r => r.Id == id && r.UserId == user.Id)
-            .FirstOrDefaultAsync();
+        bool success = await _reservationService.DeleteReservationAsync(id, user.Id);
 
-        if (reservation == null) return NotFound("Reservation not found or you are not authorized.");
-
-        reservation.StatusId = 2;
-        await _context.SaveChangesAsync();
+        if (!success) return NotFound("Reservation not found or you are not authorized.");
 
         return NoContent();
     }
@@ -207,7 +205,7 @@ public class ReservationsController : Controller
     {
         var user = await _userManager.GetUserAsync(User);
       
-        var activeReservations = await GetSortedActiveReservationsQuery().ToListAsync();;
+        var activeReservations = await _reservationService.GetSortedActiveReservationsQuery().ToListAsync();;
 
         var reservations = activeReservations.Select(r => new ReservationViewModel
         {
@@ -234,13 +232,7 @@ public class ReservationsController : Controller
     [HttpGet("create")]
     public async Task<IActionResult> CreateReservationForm()
     {
-        var resources = await _context.Resources
-            .Select(r => new 
-            {
-                r.Id,
-                DisplayName = $"{r.Name} ({r.CodeName}) - {r.Details} [{r.ResourceType.Name}]"
-            })
-            .ToListAsync();
+        var resources = await _reservationService.GetViewFormattedResources();
 
         ViewBag.Resources = new SelectList(resources, "Id", "DisplayName");
 
@@ -253,10 +245,9 @@ public class ReservationsController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
-        if (!IsValidHourReservation(request.StartDate, request.EndDate))
+        if (!_reservationService.IsValidHourReservation(request.StartDate, request.EndDate))
         {
             ModelState.AddModelError("", "Reservations must be in full-hour increments.");
-            // Load the resources again when returning to the view
             await LoadResources();
             return View("CreateReservationForm", request);
         }
@@ -266,7 +257,6 @@ public class ReservationsController : Controller
         if (apiResult is BadRequestObjectResult badRequest)
         {
             ModelState.AddModelError("", badRequest.Value?.ToString());
-            // Load the resources again when returning to the view
             await LoadResources();
             return View("CreateReservationForm", request);
         }
@@ -280,13 +270,7 @@ public class ReservationsController : Controller
 
     private async Task LoadResources()
     {
-        var resources = await _context.Resources
-            .Select(r => new 
-            {
-                r.Id,
-                DisplayName = $"{r.Name} ({r.CodeName}) - {r.Details} [{r.ResourceType.Name}]"
-            })
-            .ToListAsync();
+        var resources = await _reservationService.GetViewFormattedResources();
 
         ViewBag.Resources = new SelectList(resources, "Id", "DisplayName");
     }
@@ -294,11 +278,13 @@ public class ReservationsController : Controller
     [HttpGet("v/{id:int}")]
     public async Task<IActionResult> Details(int id)
     {
-        var reservation = await _context.Reservations
-            .Include(r => r.UserEntity)
-            .Include(r => r.ResourceEntity)
-            .Where(r => r.Id == id)
-            .FirstOrDefaultAsync();
+        // var reservation = await _context.Reservations
+        //     .Include(r => r.UserEntity)
+        //     .Include(r => r.ResourceEntity)
+        //     .Where(r => r.Id == id)
+        //     .FirstOrDefaultAsync();
+
+        var reservation = await _reservationService.GetReservationsById(id);
 
         if (reservation == null) return NotFound();
 
@@ -322,7 +308,7 @@ public class ReservationsController : Controller
 
         if (string.IsNullOrEmpty(name))
         {
-            var reservationsAll = await GetActiveReservationsQuery()
+            var reservationsAll = _reservationService.GetActiveReservationsQuery()
                 .Select(r => new ReservationViewModel
                 {
                     Id = r.Id,
@@ -338,7 +324,7 @@ public class ReservationsController : Controller
         }
 
         // This query retrieves the reservations based on the resource name instead of CodeName
-        var reservations = await GetActiveReservationsQuery()
+        var reservations = _reservationService.GetActiveReservationsQuery()
             .Where(r => r.ResourceEntity.Name.Contains(name) || r.ResourceEntity.CodeName.Contains(name))
             .Select(r => new ReservationViewModel
             {
@@ -353,12 +339,9 @@ public class ReservationsController : Controller
             .ToListAsync();
 
         if (!reservations.Any())
+        // if (!reservations)
         {
-            var suggestions = await _context.Resources
-                .Where(r => EF.Functions.Like(r.Name, $"%{name}%") || EF.Functions.Like(r.CodeName, $"%{name}%"))
-                .Select(r => r.CodeName)
-                .Distinct()
-                .ToListAsync();
+            var suggestions = await _reservationService.GetResourceNameSuggestions(name);
 
             return Json(new
             {
@@ -378,7 +361,7 @@ public class ReservationsController : Controller
         var user = await _userManager.GetUserAsync(User);
 
         
-        var query = GetActiveReservationsQuery();
+        var query = _reservationService.GetActiveReservationsQuery();
 
         if (!string.IsNullOrEmpty(resourceName))
         {
