@@ -3,6 +3,8 @@ using BookYourResource.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
+// For now we're testing unused elsewhere function yey!!!
+
 public class ReservationAviableTests
 {
     [Fact]
