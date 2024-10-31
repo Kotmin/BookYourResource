@@ -27,7 +27,7 @@ public class ReservationsController : Controller
     [HttpGet("all")]
     public async Task<IActionResult> GetAllReservations()
     {
-        var reservations = await _reservationService.GetAllReservations;
+        var reservations = await _reservationService.GetAllReservations();
         return Json(reservations);
     }
 
@@ -324,7 +324,7 @@ public class ReservationsController : Controller
         }
 
         // This query retrieves the reservations based on the resource name instead of CodeName
-        var reservations = _reservationService.GetActiveReservationsQuery()
+        var reservations = await _reservationService.GetActiveReservationsQuery()
             .Where(r => r.ResourceEntity.Name.Contains(name) || r.ResourceEntity.CodeName.Contains(name))
             .Select(r => new ReservationViewModel
             {
