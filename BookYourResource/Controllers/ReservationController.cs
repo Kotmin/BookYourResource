@@ -154,7 +154,7 @@ public class ReservationsController : Controller
         }
 
 
-        bool isAvailable = await IsReservationAvailable(request.ResourceId, request.StartDate, request.EndDate);
+        bool isAvailable = await IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
 
         if (!isAvailable)
             return BadRequest("Resource is not available in the selected time.");
@@ -173,7 +173,7 @@ public class ReservationsController : Controller
         return CreatedAtAction(nameof(GetUserReservations), new { id = reservation.Id }, reservation);
     }
 
-    public async Task<bool> IsReservationAvailable(string resourceId, DateTime startDate, DateTime endDate)
+    public async Task<bool> IsResourceAvailable(string resourceId, DateTime startDate, DateTime endDate) 
     {
         return await _context.Reservations
             .Where(r => r.ResourceId == resourceId && r.StatusId == 1) // StatusId 1 - active

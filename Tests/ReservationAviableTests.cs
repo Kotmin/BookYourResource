@@ -32,7 +32,7 @@ public class ReservationAviableTests
 
             // When
             var controller = new ReservationsController(context, null); // Mock UserManager if necessary
-            var isAvailable = await controller.IsReservationAvailable(reservation1.ResourceId, startDate, endDate);
+            var isAvailable = await controller.IsResourceAvailable(reservation1.ResourceId, startDate, endDate);
 
             // Assert
             Assert.False(isAvailable);
