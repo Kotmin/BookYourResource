@@ -31,7 +31,7 @@ public class ReservationAviableTests
             var endDate = DateTime.Now.AddHours(3);
 
             // When
-            var controller = new ReservationsController(context, null); // Mock UserManager if necessary
+            var controller = new ReservationsController(context, null,null); // Mock UserManager if necessary
             var isAvailable = await controller.IsResourceAvailable(reservation1.ResourceId, startDate, endDate);
 
             // Assert
@@ -66,8 +66,8 @@ public class ReservationAviableTests
             var endDate = DateTime.Now.AddHours(6);
 
             // When
-            var controller = new ReservationsController(context, null); 
-            var isAvailable = await controller.IsReservationAvailable(reservation1.ResourceId, startDate, endDate);
+            var controller = new ReservationsController(context, null,null); 
+            var isAvailable = await controller.IsResourceAvailable(reservation1.ResourceId, startDate, endDate);
 
             // Assert
             Assert.True(isAvailable);
