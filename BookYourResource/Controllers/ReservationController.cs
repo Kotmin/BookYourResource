@@ -141,19 +141,14 @@ public class ReservationsController : Controller
         if (user == null) return Unauthorized();
 
         if (!IsValidHourReservation(request.StartDate, request.EndDate))
-        {
             return BadRequest("Reservations must be in full-hour increments.");
-        }
+
 
          if (!IsFutureDate(request.StartDate))
-        {
             return BadRequest("The start date cannot be in the past.");
-        }
         
         if (!IsValidDateRange(request.StartDate, request.EndDate))
-        {
             return BadRequest("The end date must be after the start date.");
-        }
 
 
         // bool isAvailable = await IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
