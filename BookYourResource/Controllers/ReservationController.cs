@@ -20,11 +20,13 @@ public class ReservationsController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<User> _userManager;
+    private readonly IReservationService _reservationService;
 
-    public ReservationsController(ApplicationDbContext context, UserManager<User> userManager)
+    public ReservationsController(ApplicationDbContext context, UserManager<User> userManager, IReservationService reservationService)
     {
         _context = context;
         _userManager = userManager;
+        _reservationService = new ReservationService(context);
     }
 
 
@@ -154,7 +156,8 @@ public class ReservationsController : Controller
         }
 
 
-        bool isAvailable = await IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
+        // bool isAvailable = await IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
+        bool isAvailable = await _reservationService.IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
 
         if (!isAvailable)
             return BadRequest("Resource is not available in the selected time.");

@@ -43,6 +43,9 @@ builder.Services.AddIdentity<User, Role>(options =>
     // .AddAPIEndpoints()
     .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<IReservationService, ReservationService>();
+
+
 var app = builder.Build();
 
 

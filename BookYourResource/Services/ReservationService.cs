@@ -1,14 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-
-
-namespace BookYourResource.Services;
-
-
-// Not in use!!!@
-public class ReservationService
+public class ReservationService : IReservationService
 {
     private readonly ApplicationDbContext _context;
 
@@ -17,11 +12,11 @@ public class ReservationService
         _context = context;
     }
 
-    public async Task<bool> IsReservationAvailable(string resourceId, DateTime startDate, DateTime endDate)
+    public async Task<bool> IsResourceAvailable(string resourceId, DateTime startDate, DateTime endDate)
     {
+        // Check for overlapping reservations in the database
         return await _context.Reservations
-            .Where(r => r.ResourceId == resourceId && r.StatusId == 1) // StatusId 1 - active
+            .Where(r => r.ResourceId == resourceId && r.StatusId == 1) // StatusId 1 - active reservations
             .AllAsync(r => endDate <= r.StartDate || startDate >= r.EndDate);
     }
 }
-
