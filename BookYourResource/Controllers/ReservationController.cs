@@ -6,12 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
-
 using Microsoft.AspNetCore.Mvc.Rendering; //  req SelectList
-
-
-
-
 
 
 [Authorize]
@@ -29,7 +24,6 @@ public class ReservationsController : Controller
         _reservationService = new ReservationService(context);
     }
 
-
     [HttpGet("all")]
     public async Task<IActionResult> GetAllReservations()
     {
@@ -39,7 +33,6 @@ public class ReservationsController : Controller
             .ToListAsync();
         return Json(reservations);
     }
-
 
     [AllowAnonymous]
     [HttpGet("active")]
@@ -61,7 +54,6 @@ public class ReservationsController : Controller
         return Json(activeReservations);
     }
 
-
     private IQueryable<Reservation> GetActiveReservationsQuery()
     {
         return _context.Reservations
@@ -69,7 +61,6 @@ public class ReservationsController : Controller
             .Include(r => r.UserEntity)
             .Include(r => r.ResourceEntity);
     }
-
 
     private IQueryable<Reservation> GetSortedActiveReservationsQuery()
     {
@@ -80,8 +71,6 @@ public class ReservationsController : Controller
             .OrderBy(r => r.ResourceEntity.Name) 
             .ThenBy(r => r.StartDate.Date); 
     }
-
-
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetReservationsByResource(int id)
@@ -119,7 +108,6 @@ public class ReservationsController : Controller
         return Json(reservations);
     }
 
-
     [HttpGet("u/me")]
     public async Task<IActionResult> GetUserReservations()
     {
@@ -132,7 +120,6 @@ public class ReservationsController : Controller
 
         return Json(reservations);
     }
-
 
     [HttpPost("")]
     public async Task<IActionResult> CreateReservation([FromBody] ReservationRequest request)
@@ -195,7 +182,6 @@ public class ReservationsController : Controller
         return endDate > startDate;
     }
 
-
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteReservation(int id)
     {
@@ -214,11 +200,7 @@ public class ReservationsController : Controller
         return NoContent();
     }
 
-
-
     // Views 
-
-
     [AllowAnonymous]
     [HttpGet("")]
     public async Task<IActionResult> Index(string query = "")
@@ -249,8 +231,6 @@ public class ReservationsController : Controller
         return View(reservations);
     }
 
-
-
     [HttpGet("create")]
     public async Task<IActionResult> CreateReservationForm()
     {
@@ -266,7 +246,6 @@ public class ReservationsController : Controller
 
         return View();
     }
-
 
     [HttpPost("create")]
     public async Task<IActionResult> CreateReservationV([FromForm] ReservationRequest request)
@@ -299,7 +278,6 @@ public class ReservationsController : Controller
         return RedirectToAction("Index");
     }
 
-
     private async Task LoadResources()
     {
         var resources = await _context.Resources
@@ -312,7 +290,6 @@ public class ReservationsController : Controller
 
         ViewBag.Resources = new SelectList(resources, "Id", "DisplayName");
     }
-
 
     [HttpGet("v/{id:int}")]
     public async Task<IActionResult> Details(int id)
@@ -338,7 +315,6 @@ public class ReservationsController : Controller
 
         return View(model);
     }
-
 
     [HttpGet("v/q/{name?}")]
     public async Task<IActionResult> GetReservationsByResourceNameV(string? name)
@@ -436,8 +412,5 @@ public class ReservationsController : Controller
 
         return Json(groupedReservations);
     }
-
-
-
 }
 
