@@ -81,86 +81,7 @@ public class ReservationsController : Controller
         return Json(reservations);
     }
 
-    // [HttpPost("")]
-    // public async Task<IActionResult> CreateReservation([FromBody] ReservationRequest request)
-    // {
-    //     var user = await _userManager.GetUserAsync(User);
-    //     if (user == null) return Unauthorized();
-
-    //     if (!IsValidHourReservation(request.StartDate, request.EndDate))
-    //         return BadRequest("Reservations must be in full-hour increments.");
-
-
-    //      if (!IsFutureDate(request.StartDate))
-    //         return BadRequest("The start date cannot be in the past.");
-        
-    //     if (!IsValidDateRange(request.StartDate, request.EndDate))
-    //         return BadRequest("The end date must be after the start date.");
-
-
-    //     // bool isAvailable = await IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
-    //     bool isAvailable = await _reservationService.IsResourceAvailable(request.ResourceId, request.StartDate, request.EndDate);
-
-    //     if (!isAvailable)
-    //         return BadRequest("Resource is not available in the selected time.");
-
-    //     var reservation = new Reservation
-    //     {
-    //         UserId = user.Id,
-    //         ResourceId = request.ResourceId,
-    //         StartDate = request.StartDate,
-    //         EndDate = request.EndDate,
-    //         StatusId = 1 
-    //     };
-
-    //     _context.Reservations.Add(reservation);
-    //     await _context.SaveChangesAsync();
-    //     return CreatedAtAction(nameof(GetUserReservations), new { id = reservation.Id }, reservation);
-    // }
-
-    // public async Task<bool> IsResourceAvailable(string resourceId, DateTime startDate, DateTime endDate) 
-    // {
-    //     return await _context.Reservations
-    //         .Where(r => r.ResourceId == resourceId && r.StatusId == 1) // StatusId 1 - active
-    //         .AllAsync(r => endDate <= r.StartDate || startDate >= r.EndDate);
-    // }
-
-    // private bool IsValidHourReservation(DateTime startDate, DateTime endDate)
-    // {
-    //     // Check if Reservation time is a valid value, n*60 minutes, where n=1,2,3...
-    //     var duration = endDate - startDate;
-    //     return duration.TotalMinutes > 0 & duration.TotalMinutes % 60 == 0;
-    // }
-
-    // private bool IsFutureDate(DateTime startDate)
-    // {
-    //     return startDate >= DateTime.Now;
-    // }
-
-    // private bool IsValidDateRange(DateTime startDate, DateTime endDate)
-    // {
-    //     return endDate > startDate;
-    // }
-
-    // [HttpDelete("{id:int}")]
-    // public async Task<IActionResult> DeleteReservation(int id)
-    // {
-    //     var user = await _userManager.GetUserAsync(User);
-    //     if (user == null) return Unauthorized();
-
-    //     var reservation = await _context.Reservations
-    //         .Where(r => r.Id == id && r.UserId == user.Id)
-    //         .FirstOrDefaultAsync();
-
-    //     if (reservation == null) return NotFound("Reservation not found or you are not authorized.");
-
-    //     reservation.StatusId = 2;
-    //     await _context.SaveChangesAsync();
-
-    //     return NoContent();
-    // }
-
-        [HttpPost("")]
+    [HttpPost("")]
     public async Task<IActionResult> CreateReservation([FromBody] ReservationRequest request)
     {
         var user = await _userManager.GetUserAsync(User);
@@ -278,12 +199,6 @@ public class ReservationsController : Controller
     [HttpGet("v/{id:int}")]
     public async Task<IActionResult> Details(int id)
     {
-        // var reservation = await _context.Reservations
-        //     .Include(r => r.UserEntity)
-        //     .Include(r => r.ResourceEntity)
-        //     .Where(r => r.Id == id)
-        //     .FirstOrDefaultAsync();
-
         var reservation = await _reservationService.GetReservationsById(id);
 
         if (reservation == null) return NotFound();
@@ -339,7 +254,6 @@ public class ReservationsController : Controller
             .ToListAsync();
 
         if (!reservations.Any())
-        // if (!reservations)
         {
             var suggestions = await _reservationService.GetResourceNameSuggestions(name);
 
